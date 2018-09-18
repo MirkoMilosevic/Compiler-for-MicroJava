@@ -1,0 +1,1715 @@
+package mm120119;
+
+import java_cup.runtime.*;
+import org.apache.log4j.*;
+
+import rs.etf.pp1.symboltable.Tab;
+import rs.etf.pp1.symboltable.concepts.*;
+import rs.etf.pp1.mj.runtime.Code;
+
+import java.util.*;
+
+// import java.io.*;
+
+
+parser code {:
+	
+	boolean errorDetected = false;
+	
+	// prebrojavanje simbola
+	
+	int countGlobalVar = 0;
+	int countLocalVar = 0;
+	int countGlobalConst = 0;
+	
+	boolean globalVarDecl = false;
+	boolean inMain = false;
+	boolean inClass = false;
+	
+	Logger log = Logger.getLogger(getClass());
+   
+   
+    // slede redefinisani metodi za prijavu gresaka radi izmene teksta poruke
+     
+    public void report_fatal_error(String message, Object info) throws java.lang.Exception {
+      done_parsing();
+      report_error(message, info);
+    }
+  
+    public void syntax_error(Symbol cur_token) {
+        report_error("\nSintaksna greska", cur_token);
+    }
+  
+    public void unrecovered_syntax_error(Symbol cur_token) throws java.lang.Exception {
+        report_fatal_error("Fatalna greska, parsiranje se ne moze nastaviti", cur_token);
+    }
+
+    public void report_error(String message, Object info) {
+    	errorDetected = true;
+    	StringBuilder msg = new StringBuilder(message); 
+    	if (info instanceof Symbol)
+            msg.append (" na liniji ").append(((Symbol)info).left);
+        log.error(msg.toString());
+    }
+    
+     public void report_info(String message, Object info) {
+    	StringBuilder msg = new StringBuilder(message); 
+    	if (info instanceof Symbol)
+            msg.append (" na liniji ").append(((Symbol)info).left);
+        log.info(msg.toString());
+    }
+    
+:}
+
+
+scan with {:
+	Symbol s = this.getScanner().next_token();
+	if (s != null && s.value != null) 
+		log.info(s.toString() + " " + s.value.toString());
+	return s;
+:}
+
+
+init with {:
+	
+	Tab.init(); // Universe scope
+	Tab.currentScope.addToLocals(new Obj(Obj.Type, "bool", new Struct(Struct.Bool)));
+	
+:}
+
+action code {:
+	
+	//scope u kojem se nalaze globalne promenljive i konstante
+	Scope topScope;
+	
+	//univers scope
+	Scope universeScope;
+	
+	//da li sam u metodi
+	boolean inMethod = false;
+	
+	//provera da li main postoji i da li je void
+	boolean mainExists = false;
+	boolean mainIsVoid = false;
+	
+	//za pamcenje do kog offseta se stiglo, stack - visak?
+	int scopeOffset = 0;
+	Stack stack = new Stack();
+	
+	//definisanje konstanti i provera da li su ispravnog tipa
+	Struct currentConstType = Tab.noType;
+	boolean correctConstType = false;
+	
+	//pamcenje tipa trenutne promenljive i metode (dovoljno jedna?) i koja vrednost treba da se vrati
+	Struct currentVarType = Tab.noType;
+	Struct currentMethType = Tab.noType;
+	Struct currentMethodReturnType = Tab.noType;
+	boolean methIsVoid = false;
+	boolean staticExists = false;
+	
+	//metoda koja se deklarise
+	Obj currentMethod = null;
+	
+	//da li metoda ima return iskaz
+	boolean returnFound = false;
+	
+	//brojac za parametre i naziv varArgs
+	int cntParam = 0;
+	String varArgsName;
+	boolean varArgsExists = false;
+	int varArgsPosition = -1;
+	
+	//provera da li je kombinovani izraz
+	boolean combArithOp = false;
+	int combArithOpCnt = 0;
+	int combArithOpArray[] = new int[25];
+	Obj combArithOpDesignator[] = new Obj[25];
+	Obj combArtihOpLast = null;
+	
+	//provera da li postoji minus
+	boolean minusExists = false;
+	
+	//da li je designator clan niza
+	boolean isArray = false;
+	
+	//za proveru parametara funkcije
+	Obj niz[] = new Obj[25];
+	int cnt = 0;
+	
+	//da li je specificirana sirina za print
+	boolean isPrintNumConst = false;
+	
+	//da li se alocira novi niz;
+	boolean newArray = false;
+	Obj arrayAddress = null;
+	int destInd = 0;
+	
+	//poruke za semanticku analizu
+	String messages[] = new String[256];
+	int messagesCnt = 0;
+:}
+
+
+terminal AND;
+terminal String BOOL;
+terminal BREAK;
+terminal Character CHAR;
+terminal CLASS;
+terminal COMA;
+terminal CONST;
+terminal CONTINUE;
+terminal DECREMENT;
+terminal DIV;
+terminal DIVEQUAL;
+terminal DOT;
+terminal ELSE;
+terminal EXTENDS;
+terminal EQUAL;
+terminal EQUALEQUAL;
+terminal FOR;
+terminal GREATER;
+terminal GREQUAL;
+terminal String IDENT;
+terminal IF;
+terminal INCREMENT;
+terminal LBRACE;
+terminal LESS;
+terminal LESSEQUAL;
+terminal LPAREN;
+terminal LSQUARE;
+terminal MINUS;
+terminal MINUSEQUAL;
+terminal MOD;
+terminal MODEQUAL;
+terminal MUL;
+terminal MULEQUAL;
+terminal NEW;
+terminal NOTEQUAL;
+terminal Integer NUMBER;
+terminal OR;
+terminal PLUS;
+terminal PLUSEQUAL;
+terminal PRINT;
+terminal PROG; 
+terminal READ;
+terminal RETURN;
+terminal RBRACE;
+terminal RPAREN;
+terminal RSQUARE;
+terminal SEMI;
+terminal STATIC;
+terminal VOID;
+
+
+non terminal ActualParameters;
+non terminal Integer AddOperation;
+non terminal Integer AddOperationLeft;
+non terminal Integer AddOperationRight;
+non terminal Obj AddOperationTermList;
+non terminal AndConditionFactList;
+non terminal Integer AssignOperation;
+non terminal ClassDeclaration;
+non terminal ClassMethodDeclaration;
+non terminal ClassName;
+non terminal ClassVarDeclaration;
+non terminal ClassVarDeclarationList;
+non terminal Condition;
+non terminal ConditionFact;
+non terminal ConditionFactRelationOperationExpression;
+non terminal ConditionTerm;
+non terminal ConstDeclaration;
+non terminal ConstList;
+non terminal ConstValue;
+non terminal DeclarationList;
+non terminal Obj Designator;
+non terminal Obj DesignatorExpression;
+non terminal DesignatorStatement;
+non terminal DesignatorStatementActualParameters;
+non terminal Obj DesignatorTrailer;
+non terminal Obj Expression;
+non terminal ExpressionList;
+non terminal ExpressionSign;
+non terminal ExtendType;
+non terminal Obj Factor;
+non terminal FactorActualParameters;
+non terminal ForCondition;
+non terminal ForDesignatorStatement;
+non terminal FormalParameterDeclaration;
+non terminal FormalParameterList;
+non terminal FormalParameters;
+non terminal Matched;
+non terminal MethodDeclaration;
+non terminal MethodDeclarationList;
+non terminal MethodName;
+non terminal MethodVarDeclarationList;
+non terminal Integer MulOperation;
+non terminal Obj MulOperationFactorList;
+non terminal Integer MulOperationLeft;
+non terminal Integer MulOperationRight;
+non terminal OneConstDeclaration;
+non terminal OneDeclaration;
+non terminal OneVarDeclaration;
+non terminal OrConditionTermList;
+non terminal Integer PrintNumConst;
+non terminal Program;
+non terminal Obj ProgramName;
+non terminal RelationOperation;
+non terminal ReturnType;
+non terminal Statement;
+non terminal StatementList;
+non terminal Static;
+non terminal Obj Term;
+non terminal Struct Type;
+non terminal Unmatched;
+non terminal VarArgs;
+non terminal VarDeclaration;
+non terminal VarError;
+non terminal VarList;
+
+
+non terminal _ClassBegin;
+non terminal _ClassEnd;
+non terminal _CountVar;
+non terminal _ProgVarDeclBegin;
+non terminal _ProgVarDeclEnd;
+
+
+// PROGRAM -------------------------------
+
+Program ::= PROG ProgramName:p _ProgVarDeclBegin DeclarationList _ProgVarDeclEnd LBRACE MethodDeclarationList RBRACE
+			{:
+				Code.dataSize = Tab.currentScope().getnVars();
+	
+				Tab.chainLocalSymbols(p);
+				Tab.closeScope(); 
+				
+				parser.report_info("==================== SINTAKSNA ANALIZA ===================", null);
+				parser.report_info("Broj globalnih konstanti = " + parser.countGlobalConst, null);
+				parser.report_info("Broj globalnih promenljivih = " + parser.countGlobalVar, null);
+				parser.report_info("Broj lokalnih promenljivih u main = " + parser.countLocalVar, null);
+				
+				parser.report_info("==================== SEMANTICKA ANALIZA ===================", null);
+				int i=0;
+				while(i<messagesCnt)
+				{
+					parser.report_info(messages[i++], null);
+				}
+				
+				parser.report_info("===========================================================", null);
+				
+			:};
+
+ProgramName ::= IDENT:programName
+				{:  
+					RESULT = Tab.insert(Obj.Prog, programName, Tab.noType);
+	
+					//len funkcija
+					Code.put(Code.enter);
+					Code.put(1);
+					Code.put(1);
+					Code.put(Code.load_n);
+					Code.put(Code.arraylength);
+					Code.put(Code.exit);
+					Code.put(Code.return_);
+					Tab.lenObj.setAdr(0);
+		
+					// ord funkcija
+					int addr = Code.pc;
+					Code.put(Code.enter);
+					Code.put(1);
+					Code.put(1);
+					Code.put(Code.load_n);
+					Code.put(Code.exit);
+					Code.put(Code.return_);
+					Tab.ordObj.setAdr(addr);
+		
+					// chr funkcija
+					addr = Code.pc;
+					Code.put(Code.enter);
+					Code.put(1);
+					Code.put(1);
+					Code.put(Code.load_n);
+					Code.put(Code.exit);
+					Code.put(Code.return_);
+					Tab.chrObj.setAdr(addr);
+	
+					universeScope = Tab.currentScope;
+					Tab.openScope();
+					topScope = Tab.currentScope();
+				:};
+
+DeclarationList ::= DeclarationList OneDeclaration
+					|
+					/* epsilon */
+					;
+					
+OneDeclaration ::= ConstDeclaration
+				   |
+				   VarDeclaration
+				   |
+				   ClassDeclaration
+				   ;
+				   
+_ProgVarDeclBegin ::= {: parser.globalVarDecl = true; :};
+
+_ProgVarDeclEnd ::= {: parser.globalVarDecl = false; :};
+					
+//----------------------------------------
+
+// CONST DECLARATION ---------------------
+
+ConstDeclaration ::= CONST Type:t {: currentConstType = t; :} ConstList SEMI;
+
+ConstList ::= ConstList COMA OneConstDeclaration
+			  |
+			  OneConstDeclaration
+			  ;
+			  
+OneConstDeclaration ::= IDENT:constName EQUAL ConstValue:value
+						{:
+							if(parser.globalVarDecl && !parser.inClass) { parser.countGlobalConst++; }
+							
+							if(correctConstType)
+							{
+								Obj temp = Tab.currentScope().findSymbol(constName);
+								if(temp == null)
+								{
+									Obj o = Tab.insert(Obj.Con, constName, currentConstType);
+									o.setAdr((int) value);
+									parser.report_info("Definisana je nova konstanta " + constName +" na liniji " + valueleft, null);
+									messages[messagesCnt++] = "Definisana je nova konstanta " + constName +" na liniji " + valueleft;
+								}
+								else 
+								{ 
+									parser.report_error("Greska na liniji " + valueleft + " : Konstanta " + constName + " vec postoji! ", null);
+									messages[messagesCnt++] = "Greska na liniji " + valueleft + " : Konstanta " + constName + " vec postoji! ";
+								}
+							}
+							else 
+							{ 
+								parser.report_error("Greska na liniji " + valueleft + ": Konstanta " + constName + " nije odgovarajuceg tipa!", null); 
+								messages[messagesCnt++] = "Greska na liniji " + valueleft + ": Konstanta " + constName + " nije odgovarajuceg tipa!";
+							}
+						:}
+						|
+						IDENT EQUAL error:e
+						{:
+							parser.log.debug("Oporavak od greske prilikom dodele vrednosti konstanti na liniji " + eleft + " !");
+							messages[messagesCnt++] = "Oporavak od greske prilikom dodele vrednosti konstanti na liniji " + eleft + " !";
+						:}
+						;
+
+ConstValue ::= CHAR:value
+			   {:
+			   		Obj provera = Tab.find("char");
+			   		if(provera.getType() == currentConstType) { correctConstType = true; }
+			   		else { correctConstType = false; }
+			   		RESULT = (int) value;
+			   :}
+			   |
+			   BOOL:value
+			   {:
+			   		Obj provera = Tab.find("bool");
+			   		if(provera.getType() == currentConstType) { correctConstType = true; }
+			   		else { correctConstType = false; }
+			   		if(value.equals("true")) { RESULT = 1; }
+			   		else { RESULT = 0; }
+			   :}
+			   |
+			   NUMBER:value
+			   {:
+			   		Obj provera = Tab.find("int");
+			   		if(provera.getType() == currentConstType) { correctConstType = true; }
+			   		else { correctConstType = false; }
+			   		RESULT = value;
+			   :}
+			   ;
+			   
+//----------------------------------------
+
+// VAR DECLARATION -----------------------
+
+VarDeclaration ::= Type VarList SEMI
+				   |
+				   Type error:e SEMI
+				   {:
+				   		parser.log.debug("Oporavak od greske prilikom deklarisanja promenljive na liniji " + eleft + " !");
+						messages[messagesCnt++] = "Oporavak od greske prilikom deklarisanja promenljive na liniji " + eleft + " !";
+				   :}
+				   |
+				   Type VarList error:e SEMI
+				   {:
+				   		parser.log.debug("Oporavak od greske prilikom deklarisanja promenljive na liniji " + eleft + " !");
+						messages[messagesCnt++] ="Oporavak od greske prilikom deklarisanja promenljive na liniji " + eleft + " !";
+				   :}
+				   Type VarError VarList SEMI
+				   |
+				   Type VarList VarError VarList SEMI
+				   ;
+
+VarList ::= VarList COMA OneVarDeclaration
+			|
+			OneVarDeclaration
+			;
+
+OneVarDeclaration ::= IDENT:varName _CountVar
+					  {:
+					  		Obj temp = Tab.currentScope().findSymbol(varName);
+					  		if(temp == null)
+					  		{
+					  			Obj o = Tab.insert(Obj.Var, varName, currentVarType );
+					  			o.setAdr(scopeOffset++);
+					  			if(parser.globalVarDecl && !parser.inClass)
+					  			{ 
+									parser.report_info("Deklarisana globalna promenljiva " + varName + " na liniji " + varNameleft , null); 
+									messages[messagesCnt++] ="Deklarisana globalna promenljiva " + varName + " na liniji " + varNameleft;
+								}
+					  			else if(!parser.inClass)
+					  			{ 
+									parser.report_info("Deklarisana lokalna promenljiva " + varName + " na liniji " + varNameleft , null); 
+									messages[messagesCnt++] ="Deklarisana lokalna promenljiva " + varName + " na liniji " + varNameleft;
+								}
+					  		}
+					  		else
+					  		{ 
+								parser.report_error("Greska na liniji " + varNameleft + " promenljiva sa imenom " + varName + " vec postoji u istom opsegu!", null); 
+								messages[messagesCnt++] ="Greska na liniji " + varNameleft + " promenljiva sa imenom " + varName + " vec postoji u istom opsegu!";
+							}
+					  :}
+					  |
+					  IDENT:arrayName LSQUARE RSQUARE _CountVar
+					  {:
+					  		Obj temp = Tab.currentScope().findSymbol(arrayName);
+					  		if(temp == null)
+					  		{
+					  			Obj o = Tab.insert(Obj.Var, arrayName, new Struct(Struct.Array, currentVarType));
+					  			o.setAdr(scopeOffset++);
+					  			if(parser.globalVarDecl && !parser.inClass)
+					  			{ 
+									parser.report_info("Deklarisan globalni niz " + arrayName + " na liniji " + arrayNameleft , null); 
+									messages[messagesCnt++] ="Deklarisan globalni niz " + arrayName + " na liniji " + arrayNameleft;
+								}
+					  			else if(!parser.inClass)
+					  			{ 
+									parser.report_info("Deklarisan lokalni niz " + arrayName + " na liniji " + arrayNameleft , null); 
+									messages[messagesCnt++] ="Deklarisan lokalni niz " + arrayName + " na liniji " + arrayNameleft;
+								}
+					  		}
+					  		else
+					  		{ 
+								parser.report_error("Greska na liniji " + arrayNameleft + " promenljiva sa imenom " + arrayName + " vec postoji u istom opsegu!", null); 
+								messages[messagesCnt++] = "Greska na liniji " + arrayNameleft + " promenljiva sa imenom " + arrayName + " vec postoji u istom opsegu!";
+							}
+					  :}
+					  ;
+					  
+ClassVarDeclaration ::= Static Type VarList SEMI;
+
+VarError ::= error:e COMA
+			 {:
+			 	parser.log.debug("Oporavak od greske prilikom deklarisanja promenljive na liniji " + eleft + " !");
+				messages[messagesCnt++] = "Oporavak od greske prilikom deklarisanja promenljive na liniji " + eleft + " !";
+			 :}
+			 |
+			 COMA error:e
+			 {:
+			 	parser.log.debug("Oporavak od greske prilikom deklarisanja promenljive na liniji " + eleft + " !");
+				messages[messagesCnt++] = "Oporavak od greske prilikom deklarisanja promenljive na liniji " + eleft + " !";
+			 :};
+			 
+
+_CountVar ::= 
+{: 
+	if(parser.globalVarDecl && !parser.inClass) { parser.countGlobalVar++; }
+	if(parser.inMain && !parser.inClass) { parser.countLocalVar++; } 
+:};
+		   
+//-----------------------------------------
+
+// CLASS DECLARATION ---------------------
+
+ClassDeclaration ::= CLASS ClassName ExtendType _ClassBegin LBRACE ClassVarDeclarationList ClassMethodDeclaration _ClassEnd RBRACE; 
+
+ClassName ::= IDENT;
+
+ExtendType ::= EXTENDS Type
+			   |
+			   /* epsilon */
+			   ;
+			   
+ClassVarDeclarationList ::= ClassVarDeclarationList ClassVarDeclaration
+							|
+							/* epsilon */
+							;
+
+ClassMethodDeclaration ::= LBRACE MethodDeclarationList RBRACE
+						   |
+						   /* epsilon */
+						   ;
+	
+_ClassBegin ::= {: parser.inClass = true; :};
+_ClassEnd ::= {: parser.inClass = false; :};
+
+						   
+//-----------------------------------------
+
+// METHOD DECLARATION ---------------------
+
+MethodDeclaration ::= Static ReturnType MethodName LPAREN FormalParameters RPAREN MethodVarDeclarationList LBRACE
+					  {:
+							currentMethod.setAdr(Code.pc);
+							
+							if (parser.inMain) 
+							{
+								Code.mainPc = currentMethod.getAdr();
+							}
+							
+							currentMethod.setLevel(cntParam);
+							
+							Code.put(Code.enter);
+							Code.put(currentMethod.getLevel());
+							Code.put(Tab.currentScope().getnVars());
+					  :}
+					  StatementList RBRACE
+					  {: 
+							if((parser.inMain) && (cntParam > 0)) 
+							{ 
+								parser.report_error("Greska, main ne sme imati parametre!", null);
+								messages[messagesCnt++] = "Greska, main ne sme imati parametre!";
+							}
+
+							parser.inMain = false;
+							inMethod = false;
+	
+							Code.put(Code.exit);
+							Code.put(Code.return_);
+							
+							Tab.chainLocalSymbols(currentMethod);
+							Tab.closeScope();
+							currentMethod = null;
+	
+							scopeOffset = (int) stack.pop();
+	
+							if((varArgsExists) && (varArgsPosition != cntParam - 1 )) 
+							{ 
+								parser.report_error("Greska, VarArgs mora da se navede na kraju liste parametara!", null); 
+								messages[messagesCnt++] = "Greska, VarArgs mora da se navede na kraju liste parametara!";
+							}
+	
+							cntParam = 0;
+							varArgsExists = false;
+							varArgsPosition = -1;
+	
+							if((!methIsVoid) && (!returnFound))
+							{ 
+								parser.report_error("Greska, funkcija koja nije void mora da ima return!", null); 
+								messages[messagesCnt++] = "Greska, funkcija koja nije void mora da ima return!";
+							}
+	
+							returnFound = false;
+							methIsVoid = false;
+						:};
+
+MethodName ::= IDENT:methName
+				{:
+					inMethod = true;
+
+					if(staticExists && !parser.inClass)
+					{ 
+						parser.report_error("Greska na liniji " + methNameleft + ", ne moze globalna metoda biti static!", null); 
+						messages[messagesCnt++] = "Greska na liniji " + methNameleft + ", ne moze globalna metoda biti static!";
+					}
+	
+					staticExists = false;
+
+					if(methName.equals("main") && !parser.inClass) 
+					{ 
+						parser.inMain = true;
+						mainExists = true; 
+		
+						if(currentMethodReturnType == Tab.noType) { mainIsVoid = true; }
+						else 
+						{ 
+							parser.report_error("Greska na liniji " + methNameleft + ", main mora biti tipa void", null); 
+							messages[messagesCnt++] = "Greska na liniji " + methNameleft + ", main mora biti tipa void";
+						}
+					}
+					else { parser.inMain = false; }
+	
+					currentMethod = Tab.insert(Obj.Meth, methName, currentMethType);
+					currentMethodReturnType = currentMethType;
+					Tab.openScope();
+					parser.report_info("Definisana metoda " + methName + " na liniji " + methNameleft, null);
+					messages[messagesCnt++] = "Definisana metoda " + methName + " na liniji " + methNameleft;
+	
+					stack.push(scopeOffset);
+					scopeOffset = 0;
+				:};
+
+ReturnType ::= Type
+			   |
+			   VOID
+			   {:
+			   		currentMethodReturnType = Tab.noType;
+			   		methIsVoid = true;
+			   :}
+			   ;
+			   
+MethodDeclarationList ::= MethodDeclarationList MethodDeclaration
+						  |
+						  /* epsilon */
+						  ;
+			   
+MethodVarDeclarationList ::= MethodVarDeclarationList VarDeclaration
+							 |
+							 /* epsilon */
+							 ;
+							 
+StatementList ::= StatementList Statement
+				  |
+				  /* epsilon */
+				  ;
+
+Static ::= STATIC
+		   {:
+		   		staticExists = true;
+		   :}
+		   |
+		   /* epsilon */
+		   ;
+				  
+//------------------------------------------
+
+// FORMAL PARAMETERS------------------------
+
+FormalParameters ::= FormalParameterList
+					 |
+					 /* epsilon */
+					 ;
+					 
+FormalParameterList ::= FormalParameterList COMA FormalParameterDeclaration
+						 |
+						 FormalParameterDeclaration
+						 ;
+						 
+FormalParameterDeclaration ::= Type IDENT:varName
+								{:
+									Obj temp = Tab.currentScope().findSymbol(varName);
+					  				if(temp == null)
+					  				{
+										Obj o = Tab.insert(Obj.Var, varName, currentVarType );
+					  					o.setAdr(scopeOffset++);
+					  					o.setFpPos(cntParam++);
+					  					parser.report_info("Metoda ima parametar " + varName + ", naveden u liniji " + varNameleft , null);
+										messages[messagesCnt++] = "Metoda ima parametar " + varName + ", naveden u liniji " + varNameleft;
+					  				}
+									else 
+									{ 
+										parser.report_error("Greska na liniji " + varNameleft + ", parametar istog imena vec postoji!", null); 
+										messages[messagesCnt++] = "Greska na liniji " + varNameleft + ", parametar istog imena vec postoji!";
+									}
+								:}
+							   |
+							   Type IDENT:arrayName LSQUARE RSQUARE
+							   {:
+							   		Obj temp = Tab.currentScope().findSymbol(arrayName);
+					  				if(temp == null)
+					  				{
+										Obj o = Tab.insert(Obj.Var, arrayName, new Struct(Struct.Array, currentVarType));
+					  					o.setAdr(scopeOffset++);
+					  					o.setFpPos(cntParam++);
+					  					parser.report_info("Metoda ima parametar (niz) " + arrayName + ", naveden u liniji " + arrayNameleft , null);
+										messages[messagesCnt++] = "Metoda ima parametar (niz) " + arrayName + ", naveden u liniji " + arrayNameleft;
+					  				}
+									else 
+									{ 
+										parser.report_error("Greska na liniji " + arrayNameleft + ", parametar istog imena vec postoji!", null); 
+										messages[messagesCnt++] = "Greska na liniji " + arrayNameleft + ", parametar istog imena vec postoji!";
+									}
+							   :}
+							   |
+							   VarArgs:va
+							   {:
+							   		if(varArgsExists) 
+									{ 
+										parser.report_error("Greska na liniji " + valeft + ", VarArgs naveden vise puta!", null); 
+										messages[messagesCnt++] = "Greska na liniji " + valeft + ", VarArgs naveden vise puta!";
+									}
+							   		
+							   		varArgsExists = true;
+							   		
+							   		Obj temp = Tab.currentScope().findSymbol(varArgsName);
+					  				if(temp == null)
+					  				{
+										Obj o = Tab.insert(Obj.Var, varArgsName, currentVarType );
+					  					o.setAdr(scopeOffset++);
+					  					o.setFpPos(cntParam++);
+					  					varArgsPosition = cntParam - 1;
+					  					parser.report_info("Metoda ima parametar (VarArgs) " + varArgsName + ", naveden u liniji " + valeft , null);
+										messages[messagesCnt++] = "Metoda ima parametar (VarArgs) " + varArgsName + ", naveden u liniji " + valeft;
+					  				}
+									else 
+									{ 
+										parser.report_error("Greska na liniji " + valeft + ", parametar istog imena vec postoji!", null);
+										messages[messagesCnt++] = "Greska na liniji " + valeft + ", parametar istog imena vec postoji!";
+									}
+							   :}
+							   ;
+							   
+VarArgs ::= Type DOT DOT DOT IDENT:name {: varArgsName = name; :};
+							   
+//------------------------------------------
+
+// TYPE-------------------------------------
+
+Type ::= IDENT:typeName
+{:
+	Obj typeNode = Tab.find(typeName);
+	if (typeNode == Tab.noObj) 
+	{
+		parser.report_error("Greska na liniji " + typeNameleft + ": Nije pronadjen tip " + typeName + " u tabeli simbola", null);
+		messages[messagesCnt++] = "Greska na liniji " + typeNameleft + ": Nije pronadjen tip " + typeName + " u tabeli simbola";
+		RESULT = Tab.noType;
+	}
+	else 
+	{
+		if (Obj.Type == typeNode.getKind()) 
+		{
+			RESULT = typeNode.getType();
+			currentVarType = RESULT;
+			currentMethType = RESULT;
+		}
+		else 
+		{
+			parser.report_error("Greska na liniji" + typeNameleft+ ": Ime " + typeName + " ne predstavlja tip ", null);
+			messages[messagesCnt++] = "Greska na liniji" + typeNameleft+ ": Ime " + typeName + " ne predstavlja tip ";
+			RESULT = Tab.noType;
+		}
+	}
+:};
+
+//------------------------------------------
+
+// STATEMENT--------------------------------
+
+Statement ::= Unmatched
+			  |
+			  Matched
+			  ;
+			  
+Unmatched ::= IF LPAREN Condition RPAREN Statement
+			  |
+			  IF LPAREN Condition RPAREN Matched ELSE Unmatched
+			  |
+			  FOR LPAREN ForDesignatorStatement SEMI ForCondition SEMI ForDesignatorStatement RPAREN Unmatched
+			  ;
+			 
+Matched ::= IF LPAREN Condition RPAREN Matched ELSE Matched
+			|
+			FOR LPAREN ForDesignatorStatement SEMI ForCondition SEMI ForDesignatorStatement RPAREN Matched
+			|
+			DesignatorStatement SEMI
+			|
+			BREAK SEMI
+			|
+			CONTINUE SEMI
+			|
+			RETURN Expression:e SEMI
+			{:
+				returnFound = true;
+				if (!currentMethodReturnType.compatibleWith(e.getType())) 
+				{ 
+					parser.report_error("Greska na liniji " + eleft + " : " + "tip izraza u return naredbi ne slaze se sa tipom povratne vrednosti funkcije!", null); 
+					messages[messagesCnt++] = "Greska na liniji " + eleft + " : " + "tip izraza u return naredbi ne slaze se sa tipom povratne vrednosti funkcije!";
+				}
+			
+				Code.put(Code.exit);
+				Code.put(Code.return_);
+				
+			:}
+			|
+			RETURN SEMI
+			{:
+				returnFound = true;
+				if(!methIsVoid)
+				{ 
+					parser.report_error("Greska, ne moze funkcija koja nije void da ima return bez izraza!", null); 
+					messages[messagesCnt++] = "Greska, ne moze funkcija koja nije void da ima return bez izraza!";
+				}
+			
+				Code.put(Code.exit);
+				Code.put(Code.return_);
+			
+			:}
+			|
+			READ LPAREN Designator:d RPAREN SEMI
+			{:
+				if(d.getKind() != Obj.Var)
+				{ 
+					parser.report_error("Greska na liniji " + dleft + " parametar mora biti promenljiva!", null); 
+					messages[messagesCnt++] = "Greska na liniji " + dleft + " parametar mora biti promenljiva!";
+				}
+				
+				if((d.getType() != Tab.find("int").getType()) && 
+				   (d.getType() != Tab.find("char").getType()) &&
+				   (d.getType() != Tab.find("bool").getType()))
+				{ 
+					parser.report_error("Greska na liniji " + dleft + " parametar mora biti int, char ili bool!", null); 
+					messages[messagesCnt++] = "Greska na liniji " + dleft + " parametar mora biti int, char ili bool!";
+				}
+				
+				Code.put(Code.read);
+                Code.store(d);
+				
+			:}
+			|
+			PRINT LPAREN Expression:e PrintNumConst:value RPAREN SEMI
+			{:
+				if((e.getType() != Tab.find("int").getType()) && 
+				   (e.getType() != Tab.find("char").getType()) &&
+				   (e.getType() != Tab.find("bool").getType()))
+				{ 
+					parser.report_error("Greska na liniji " + eleft + " parametar mora biti int, char ili bool!", null); 
+					messages[messagesCnt++] = "Greska na liniji " + eleft + " parametar mora biti int, char ili bool!";
+				}
+				
+				if (e.getType() == Tab.find("int").getType()) 
+				{
+			  	 	if(isPrintNumConst)
+					{
+						Code.loadConst(value);
+						isPrintNumConst = false;
+					}
+					else
+					{
+						Code.loadConst(5);
+					}
+			  	 	
+					Code.put(Code.print);
+			  	 }
+			  	 
+			  	 if (e.getType() == Tab.find("char").getType()) 
+				 {
+					if(isPrintNumConst)
+					{
+						Code.loadConst(value);
+						isPrintNumConst = false;
+					}
+					else
+					{
+						Code.loadConst(1);
+					}
+			  	 	
+					Code.put(Code.bprint);
+			  	 }
+				
+				if (e.getType() == Tab.find("bool").getType()) 
+				{
+			  	 	if(isPrintNumConst)
+					{
+						Code.loadConst(value);
+						isPrintNumConst = false;
+					}
+					else
+					{
+						Code.loadConst(5);
+					}
+			  	 	
+					Code.put(Code.print);
+			  	 }
+				
+			:}
+			|
+			LBRACE StatementList RBRACE
+			;
+			
+ForDesignatorStatement ::= DesignatorStatement
+						   |
+						   /* epsilon */
+						   ;
+						   
+ForCondition ::= Condition
+				 |
+				 /* epsilon */
+				 ;
+				 
+PrintNumConst ::= COMA NUMBER:value
+				  {:
+						isPrintNumConst = true;
+						RESULT = value;
+				  :}
+				  |
+				  /* epsilon */
+				  ;
+				  
+//------------------------------------------
+
+// DESIGNATOR STATEMENT --------------------
+
+DesignatorStatement ::= Designator:d AssignOperation:operation
+						{:
+							if(combArithOp)
+							{
+								/*
+								if(d.getKind() == Obj.Elem)
+								{
+									Code.load(Tab.find(d.getName()));
+									Code.loadConst(d.getAdr());
+								}
+								*/
+								
+								Code.load(d);
+								combArithOpDesignator[combArithOpCnt-1] = d;
+								combArithOp = false;
+							}
+						:}
+						Expression:e
+						{:
+							if(d.getKind() != Obj.Var && d.getKind() != Obj.Elem)
+							{ 
+								parser.report_error("Greska na liniji " + eleft + " leva strana mora biti promenljiva!", null); 
+								messages[messagesCnt++] = "Greska na liniji " + eleft + " leva strana mora biti promenljiva!";
+							}
+							
+							
+							if(newArray || isArray)
+							{
+								
+								/*
+								if(d.getType() != null)
+								{
+									if(!d.getType().compatibleWith(e.getType()))
+									{
+										parser.report_error("Greska na liniji " + eleft + " izraz nije kompatibalan sa neterminalom na levoj strani (nizovi)!", null);
+										messages[messagesCnt++] = "Greska na liniji " + eleft + " izraz nije kompatibalan sa neterminalom na levoj strani (nizovi)!";
+									}
+								}
+								*/
+								
+								
+								if((d.getType() == Tab.intType) && (e.getType() != Tab.intType))
+								{
+									parser.report_error("Greska na liniji " + eleft + " izraz nije kompatibalan sa neterminalom na levoj strani (int)!", null);
+									messages[messagesCnt++] = "Greska na liniji " + eleft + " izraz nije kompatibalan sa neterminalom na levoj strani (int)!";
+								}
+								
+								if((d.getType() == Tab.charType) && (e.getType() != Tab.charType))
+								{
+									parser.report_error("Greska na liniji " + eleft + " izraz nije kompatibalan sa neterminalom na levoj strani (char)!", null);
+									messages[messagesCnt++] = "Greska na liniji " + eleft + " izraz nije kompatibalan sa neterminalom na levoj strani (char)!";
+								}
+								
+								if((d.getType() == Tab.find("bool").getType()) && (e.getType() != Tab.find("bool").getType()))
+								{
+									parser.report_error("Greska na liniji " + eleft + " izraz nije kompatibalan sa neterminalom na levoj strani (bool)!", null);
+									messages[messagesCnt++] = "Greska na liniji " + eleft + " izraz nije kompatibalan sa neterminalom na levoj strani (bool)!";
+								}
+								
+								/*
+								if(combArithOpCnt>0)
+								{
+									Code.put(operation);
+								}
+								
+								combArithOpCnt = 0;
+								newArray = false;
+								isArray = false;
+								*/
+							}
+							else
+							{
+								if(!d.getType().compatibleWith(e.getType()))
+								{	 
+									parser.report_error("Greska na liniji " + eleft + " izraz nije kompatibalan sa neterminalom na levoj strani!", null);
+									messages[messagesCnt++] = "Greska na liniji " + eleft + " izraz nije kompatibalan sa neterminalom na levoj strani!";								
+								}
+							}
+							
+						
+							parser.report_info("ZAVRSIO SAM IZRAZ I CNT JE " + combArithOpCnt + "!!!", null);
+						
+							if(combArithOpCnt>0)
+							{	
+								if(d.getKind() == Obj.Elem)
+								{
+									if(d.getType() != Tab.find("int").getType())
+									{ 
+										parser.report_error("Greska na liniji " + eleft + " mora biti tipa int i leva strana mora biti promenljiva tipa int!", null);
+										messages[messagesCnt++] = "Greska na liniji " + eleft + " mora biti tipa int i leva strana mora biti promenljiva tipa int!";
+									}
+								}
+								else
+								{
+									if((d.getType() != Tab.find("int").getType()) || 
+										(e.getType() != Tab.find("int").getType()) ||
+										(d.getKind() != Obj.Var))
+										{ 
+											parser.report_error("Greska na liniji " + eleft + " mora biti tipa int i leva strana mora biti promenljiva!", null);
+											messages[messagesCnt++] = "Greska na liniji " + eleft + " mora biti tipa int i leva strana mora biti promenljiva!";
+										}
+								}
+								
+								Obj temp = new Obj(Obj.Var, "", Tab.intType);
+								
+								while(combArithOpCnt>0)
+								{
+									combArithOpCnt--;
+									
+									if(combArithOpCnt>0)
+									{
+										if(combArithOpDesignator[combArithOpCnt].getKind() != Obj.Elem)
+										{
+											Code.put(combArithOpArray[combArithOpCnt]);
+											Code.store(combArithOpDesignator[combArithOpCnt]);
+											Code.load(combArithOpDesignator[combArithOpCnt]);
+										}
+										else
+										{
+											Code.put(combArithOpArray[combArithOpCnt]);
+								
+											Code.store(temp);
+											
+											Obj c = topScope.findSymbol(combArithOpDesignator[combArithOpCnt].getName());
+											Code.load(c);
+											Code.loadConst(combArithOpDesignator[combArithOpCnt].getFpPos());
+											
+											Code.load(temp);
+											
+											Code.store(combArithOpDesignator[combArithOpCnt]);
+											Code.load(c);
+											Code.loadConst(combArithOpDesignator[combArithOpCnt].getFpPos());
+											Code.load(combArithOpDesignator[combArithOpCnt]);
+										}
+									}
+									else
+									{
+										if(combArithOpDesignator[combArithOpCnt].getKind() != Obj.Elem)
+										{
+											Code.put(combArithOpArray[combArithOpCnt]);
+										}
+										else
+										{
+											Code.put(combArithOpArray[combArithOpCnt]);
+								
+											Code.store(temp);
+											
+											Obj c = topScope.findSymbol(combArithOpDesignator[combArithOpCnt].getName());
+											Code.load(c);
+											Code.loadConst(combArithOpDesignator[combArithOpCnt].getFpPos());
+											
+											Code.load(temp);
+										}
+										
+									}
+								}
+							}
+							
+							Code.store(d);
+							
+							combArithOpCnt = 0;
+							combArithOp = false;
+							
+						:}
+						|
+						Designator:d LPAREN DesignatorStatementActualParameters RPAREN
+						{:
+							if(d.getKind() != Obj.Meth)
+							{ 
+								parser.report_error("Greska na liniji " + dleft + " neterminal mora biti metoda!", null); 
+								messages[messagesCnt++] = "Greska na liniji " + dleft + " neterminal mora biti metoda!";
+							}
+							
+							int paramCnt = d.getLevel();
+							
+							if(paramCnt != cnt)
+							{ 
+								parser.report_error("Greska na liniji " + dleft + " poziv funkcije nema dovoljan broj parametara! Ima ih " + cnt + ", a treba da ih bude " + paramCnt + "!" , null);
+								messages[messagesCnt++] = "Greska na liniji " + dleft + " poziv funkcije nema dovoljan broj parametara! Ima ih " + cnt + ", a treba da ih bude " + paramCnt + "!";
+							}
+							
+							int tek = 0;
+							
+							for(Obj param : d.getLocalSymbols()) 
+							{	
+					   			if(tek >= cnt) { break; }
+					   			
+					   			if(niz[tek++].getType().getKind() != param.getType().getKind()) 
+					   			{ 
+									parser.report_error("Greska na liniji " + dleft + " parametar na poziciji " + tek + " nije odgovarajuceg tipa!", null); 
+									messages[messagesCnt++] = "Greska na liniji " + dleft + " parametar na poziciji " + tek + " nije odgovarajuceg tipa!";
+								}
+							}
+							
+							cnt = 0;
+							
+							int destAdr = d.getAdr() - Code.pc;
+							Code.put(Code.call);
+							Code.put2(destAdr);
+							if (d.getType() != Tab.noType)
+							Code.put(Code.pop);
+							
+						:}
+						|
+						Designator:d INCREMENT
+						{:
+							if(d.getKind() != Obj.Var)
+							{ 
+								parser.report_error("Greska na liniji " + dleft + " inkrementirati se moze jedino promenljiva!", null); 
+								messages[messagesCnt++] = "Greska na liniji " + dleft + " inkrementirati se moze jedino promenljiva!";
+							}
+							if(d.getType() != Tab.find("int").getType()) 
+							{ 
+								parser.report_error("Greska na liniji " + dleft + " inkrementirati se moze jedino int!", null);
+								messages[messagesCnt++] = "Greska na liniji " + dleft + " inkrementirati se moze jedino int!";
+							}
+						
+							Code.load(d);
+							Code.put(Code.const_1);
+							Code.put(Code.add);
+							Code.store(d);
+						
+						:}
+						|
+						Designator:d DECREMENT
+						{:
+							if(d.getKind() != Obj.Var)
+							{ 
+								parser.report_error("Greska na liniji " + dleft + " dekrementirati se moze jedino promenljiva!", null); 
+								messages[messagesCnt++] = "Greska na liniji " + dleft + " dekrementirati se moze jedino promenljiva!";
+							}
+							if(d.getType() != Tab.find("int").getType()) 
+							{ 
+								parser.report_error("Greska na liniji " + dleft + " dekrementirati se moze jedino int!", null);
+								messages[messagesCnt++] = "Greska na liniji " + dleft + " dekrementirati se moze jedino int!";
+							}
+						
+							Code.load(d);
+							Code.put(Code.const_1);
+							Code.put(Code.sub);
+							Code.store(d);
+						
+						:}
+						|
+						Designator EQUAL error:e
+						{:
+							parser.log.debug("Oporavak od greske prilikom dodele vrednosti na liniji " + eleft + " !");
+							messages[messagesCnt++] = "Oporavak od greske prilikom dodele vrednosti na liniji " + eleft + " !";
+						:}
+						;
+						
+DesignatorStatementActualParameters ::= ActualParameters
+										|
+										/* epsilon */
+										;
+										
+//------------------------------------------
+
+// ACTUAL PARAMETERS -----------------------
+
+ActualParameters ::= ExpressionList;
+
+ExpressionList ::= ExpressionList COMA Expression:e
+				   {:
+				   		niz[cnt++] = e; 
+				   		parser.report_info("Pronadjeno koriscenje stvarnog parametra " + e.getName() + " vrednosti " + e.getAdr() + " na liniji " + eleft, null);
+				   		messages[messagesCnt++] = "Pronadjeno koriscenje stvarnog parametra " + e.getName() + " vrednosti " + e.getAdr() + " na liniji " + eleft;
+				   :}
+				   |
+				   Expression:e
+				   {: 
+				   		niz[cnt++] = e; 
+				   		parser.report_info("Pronadjeno koriscenje stvarnog parametra " + e.getName() + " na liniji " + eleft, null);
+						messages[messagesCnt++] = "Pronadjeno koriscenje stvarnog parametra " + e.getName() + " na liniji " + eleft;
+				   :}
+				   ;
+
+//------------------------------------------
+
+// CONDITION -------------------------------
+
+Condition ::= ConditionTerm OrConditionTermList;
+
+OrConditionTermList ::= OrConditionTermList OR ConditionTerm
+						|
+						/* epsilon */
+						;
+						
+ConditionTerm ::= ConditionFact AndConditionFactList;
+
+AndConditionFactList ::= AndConditionFactList AND ConditionFact
+						 |
+						 /* epsilon */
+						 ;
+
+ConditionFact ::= Expression ConditionFactRelationOperationExpression;
+
+ConditionFactRelationOperationExpression ::= RelationOperation Expression
+											 |
+											 /* epsilon */
+											 ;
+
+//------------------------------------------
+
+// EXPRESSION ------------------------------
+
+Expression ::= ExpressionSign AddOperationTermList:t 
+				{: 
+					RESULT = t;
+
+					if(minusExists)
+					{
+					if(t.getType() != Tab.find("int").getType()) 
+					{ 
+						parser.report_error("Greska na liniji " + tleft + " izraz sa minusom mora da bude int!", null); 
+						messages[messagesCnt++] = "Greska na liniji " + tleft + " izraz sa minusom mora da bude int!";
+					}
+					
+					Code.put(Code.neg);
+					minusExists = false;
+					}
+ 
+				:};
+
+ExpressionSign ::= MINUS
+					{: minusExists = true; :}
+				   |
+				   /* epsilon */
+				   ;
+				   
+AddOperationTermList ::= AddOperationTermList:tip1 AddOperation:operation
+						 {:
+							if(combArithOp)
+							{
+								combArithOpDesignator[combArithOpCnt-1] = tip1;
+								combArithOpArray[combArithOpCnt-1] = operation;
+								
+							}
+						 :}
+						 Term:tip2
+						 {:
+							if((tip1.getType() != Tab.find("int").getType()) || (tip2.getType() != Tab.find("int").getType()))
+							{ 
+								parser.report_error("Greska na liniji " + tip1left + " aritmetika mora sa int!", null); 
+								messages[messagesCnt++] = "Greska na liniji " + tip1left + " aritmetika mora sa int!";
+							}
+							
+							if(!combArithOp)
+							{
+								Code.put(operation);
+							}
+							else
+							{	
+								combArithOp = false;
+							}
+							
+						 	RESULT = tip2;
+						 :}
+						 |
+						 Term:t
+						 {: RESULT = t; :}
+						 ;
+						 
+//------------------------------------------
+
+// TERM ------------------------------------
+
+Term ::= Factor:tip1 MulOperationFactorList:tip2
+		{:
+			if(tip2 != null)
+			{ 
+				if(combArithOp)
+				{	
+					combArithOpDesignator[combArithOpCnt-1] = tip1;
+				}
+		
+			RESULT = tip2; 
+			}
+			else
+			{ 
+				RESULT = tip1;	
+			}
+		:};
+
+MulOperationFactorList ::= MulOperationFactorList:tip1 MulOperation:operation Factor:tip2
+						   {:
+								if(!combArithOp)
+								{
+									Code.put(operation);
+								}
+								else
+								{
+									combArithOpArray[combArithOpCnt-1] = operation;
+									RESULT = tip2;
+								}
+						   :}
+						   |
+						   /* epsilon */
+						   ;			   
+
+//------------------------------------------
+
+// FACTOR ----------------------------------
+
+Factor ::= Designator:d FactorActualParameters 
+		   {: 
+		   		RESULT = d;
+		   		if(d.getKind() != Obj.Meth)
+		   		{ 
+					parser.report_error("Greska na liniji " + dleft + " designator mora biti funkcija da bi mogao da se pozove!", null); 
+					messages[messagesCnt++] = "Greska na liniji " + dleft + " designator mora biti funkcija da bi mogao da se pozove!";
+				}
+
+				if(d.getKind() != Obj.Meth)
+				{ 
+					parser.report_error("Greska na liniji " + dleft + " neterminal mora biti metoda!", null); 
+					messages[messagesCnt++] = "Greska na liniji " + dleft + " neterminal mora biti metoda!";
+				}
+							
+				int paramCnt = d.getLevel();
+							
+				if(paramCnt != cnt)
+				{ 
+					parser.report_error("Greska na liniji " + dleft + " poziv funkcije nema dovoljan broj parametara! Ima ih " + cnt + ", a treba da ih bude " + paramCnt + "!" , null); 
+					messages[messagesCnt++] = "Greska na liniji " + dleft + " poziv funkcije nema dovoljan broj parametara! Ima ih " + cnt + ", a treba da ih bude " + paramCnt + "!";
+				}
+							
+				int tek = 0;
+							
+				for(Obj param : d.getLocalSymbols()) 
+				{	
+					if(tek >= cnt) { break; }
+					   			
+					if(niz[tek++].getType().getKind() != param.getType().getKind()) 
+					{ 
+						parser.report_error("Greska na liniji " + dleft + " parametar na poziciji " + tek + " nije odgovarajuceg tipa!", null); 
+						messages[messagesCnt++] = "Greska na liniji " + dleft + " parametar na poziciji " + tek + " nije odgovarajuceg tipa!";
+					}
+				}
+							
+				cnt = 0;
+							
+				int destAdr = d.getAdr() - Code.pc;
+				Code.put(Code.call);
+				Code.put2(destAdr);		
+		   :}
+		   |
+		   Designator:d
+		   {:
+				Code.load(d);
+		   		RESULT = d;
+		   :}
+		   |
+		   NUMBER:val
+		   {: 
+				Obj c = Tab.insert(Obj.Con, "", Tab.intType);
+				c.setAdr(val.intValue());
+				Code.load(c); 
+				RESULT = c;
+		   :}
+		   |
+		   CHAR:val 
+		   {: 
+				Obj c = Tab.insert(Obj.Con, "", Tab.charType);
+				c.setAdr((int) val);
+				Code.load(c);
+				RESULT = Tab.find("char"); 
+		   :}
+		   |
+		   BOOL:val 
+		   {: 
+		   		int vrednost;
+		   		
+		   		if(val.equals("true")) { vrednost = 1; }
+			   	else { vrednost = 0; }
+		   		
+		   		Obj c = Tab.insert(Obj.Con, "", Tab.intType);
+				c.setAdr(vrednost);
+				Code.load(c);
+		   		RESULT = Tab.find("bool"); 
+		   :}
+		   |
+		   NEW Type
+		   |
+		   NEW Type LSQUARE Expression:e RSQUARE
+		   {:
+				if(e.getType() != Tab.find("int").getType()) 
+				{ 
+					parser.report_error("Greska na liniji " + eleft + " izraz u okviru new mora biti int!", null); 
+					messages[messagesCnt++] = "Greska na liniji " + eleft + " izraz u okviru new mora biti int!";
+				}
+			
+				newArray = true;
+				int elemSize = 0;
+				if(currentVarType == Tab.charType) 
+				{ 
+					elemSize = 0; 
+					RESULT = Tab.find("char");
+				}
+				if(currentVarType == Tab.intType) 
+				{ 
+					elemSize = 1; 
+					RESULT = Tab.find("int");
+				}
+				if(currentVarType == Tab.find("bool").getType())
+				{
+					elemSize = 1; 
+					RESULT = Tab.find("bool");
+				}
+				
+				Code.put(Code.newarray);
+		   		Code.put(elemSize);
+		   :}
+		   |
+		   LPAREN Expression:e RPAREN
+		   {:
+				RESULT = e;
+		   :}
+		   ;
+		   
+FactorActualParameters ::= LPAREN DesignatorStatementActualParameters RPAREN;
+		   
+//------------------------------------------
+
+// DESIGNATOR ------------------------------
+
+Designator ::= IDENT:name 
+				{:
+					Obj o = null;
+	
+					if(inMethod)
+					{
+						o = Tab.currentScope().findSymbol(name);
+		
+						//pronasao lokalni simbol
+						if((o != null) && (o.getAdr() > cntParam - 1))
+						{ 
+							parser.report_info("Koriscenje lokalne promenljive " + name +" na liniji " + nameleft, null);
+							messages[messagesCnt++] = "Koriscenje lokalne promenljive " + name +" na liniji " + nameleft;
+							RESULT = o;
+						}
+						else if (o != null)
+						{ 
+							parser.report_info("Koriscenje parametra " + name +" na liniji " + nameleft, null);
+							messages[messagesCnt++] = "Koriscenje parametra " + name +" na liniji " + nameleft;
+							RESULT = o; 
+						}
+						else
+						{
+							o = topScope.findSymbol(name);
+			
+							if(o != null)
+							{
+								if(o.getKind() == Obj.Con) 
+								{ 
+									parser.report_info("Koriscenje konstante " + name +" na liniji " + nameleft, null);
+									messages[messagesCnt++] = "Koriscenje konstante " + name +" na liniji " + nameleft;
+									RESULT = o;
+								}
+								if(o.getKind() == Obj.Var) 
+								{ 
+									parser.report_info("Koriscenje globalne promenljive " + name +" na liniji " + nameleft, null);
+									messages[messagesCnt++] = "Koriscenje globalne promenljive " + name +" na liniji " + nameleft;
+									RESULT = o;
+								}
+									if(o.getKind() == Obj.Meth)
+								{ 
+									parser.report_info("Poziv globalne funkcije " + name +" na liniji " + nameleft, null);
+									messages[messagesCnt++] = "Poziv globalne funkcije " + name +" na liniji " + nameleft;
+									RESULT = o; 
+								}
+							}
+							else 
+							{ 
+								o = universeScope.findSymbol(name);
+				
+								if(o != null)
+								{ 
+									parser.report_info("Poziv funkcije iz universe opsega " + name +" na liniji " + nameleft, null); 
+									messages[messagesCnt++] = "Poziv funkcije iz universe opsega " + name +" na liniji " + nameleft;
+									RESULT = o;
+								}
+								else
+								{ 
+									parser.report_error("Greska na liniji" + nameleft+ ": Ime " + name + " ne postoji!", null); 
+									messages[messagesCnt++] = "Greska na liniji" + nameleft+ ": Ime " + name + " ne postoji!";
+									RESULT = o;
+								} 
+							}
+						}
+					}
+					
+					arrayAddress = o;
+				:}
+				DesignatorTrailer:dt
+				{:
+					if(dt != null)
+					{
+						Obj o = Tab.find(name);
+						RESULT = new Obj(Obj.Elem, name, o.getType().getElemType());
+						RESULT.setFpPos(dt.getAdr());
+					}
+					
+				:};
+
+DesignatorTrailer ::= DesignatorTrailer DOT IDENT
+					  |
+					  DesignatorTrailer DesignatorExpression:de
+					  {: RESULT = de; :}
+					  |
+					  /* epsilon */
+					  ;
+					  
+DesignatorExpression ::= LSQUARE
+						 {:
+							Code.load(arrayAddress);
+						 :}	
+						 Expression:e RSQUARE
+						 {:
+							if(e.getType() != Tab.find("int").getType()) 
+							{ 
+								parser.report_error("Greska na liniji " + eleft + " izraz koji indeksira niz mora biti int!", null); 
+								messages[messagesCnt++] = "Greska na liniji " + eleft + " izraz koji indeksira niz mora biti int!";
+							}
+							RESULT = e;
+							isArray = true;
+							destInd = e.getAdr();
+						 :};
+
+//------------------------------------------
+
+// ASSIGN OPERATOR -------------------------
+
+AssignOperation ::= EQUAL
+					|
+					AddOperationRight:operation
+					{: 
+						RESULT = operation; 
+					:}
+					|
+					MulOperationRight:operation
+					{: 
+						RESULT = operation; 
+					:}
+					;
+					
+//------------------------------------------
+
+// RELATION OPERATOR -----------------------
+
+RelationOperation ::= EQUALEQUAL
+					  |
+					  NOTEQUAL
+					  |
+					  GREATER
+					  |
+					  GREQUAL
+					  |
+					  LESS
+					  |
+					  LESSEQUAL
+					  ;
+
+//------------------------------------------
+
+// ADD OPERATOR ----------------------------
+
+AddOperation ::= AddOperationLeft:operation
+				 {:
+					 RESULT = operation;
+				 :}
+		  		 |
+		  		 AddOperationRight:operation
+				 {:
+					 RESULT = operation;
+				 :}
+		  		 ;
+
+AddOperationLeft ::= PLUS
+					 {:
+						RESULT = Code.add;
+					 :}
+			  		 |
+			  		 MINUS
+					 {:
+						RESULT = Code.sub;
+					 :}
+			   		 ;
+			  
+AddOperationRight ::= PLUSEQUAL 
+					  {: 
+							combArithOp = true;
+							combArithOpArray[combArithOpCnt] = Code.add;
+							combArithOpCnt++;
+							RESULT = Code.add;
+					  :}
+			   		  |
+			   		  MINUSEQUAL 
+					  {: 
+							combArithOp = true;
+							combArithOpArray[combArithOpCnt] = Code.sub;
+							combArithOpCnt++;
+							RESULT = Code.sub;
+					  :}
+			   		  ;
+
+//------------------------------------------
+
+// MUL OPERATOR ----------------------------
+
+MulOperation ::= MulOperationLeft:operation
+				 {:
+					 RESULT = operation;
+				 :}
+		  		 |
+		  		 MulOperationRight:operation
+				 {:
+					 RESULT = operation;
+				 :}
+		  		 ;
+
+MulOperationLeft ::= MUL
+					 {:
+						RESULT = Code.mul;
+					 :}
+			  		 |
+			  		 DIV
+					 {:
+						RESULT = Code.div;
+					 :}
+			  		 |
+			  		 MOD
+					 {:
+						RESULT = Code.rem;
+					 :}
+			  		 ;
+			  
+MulOperationRight ::= MULEQUAL 
+					  {: 
+							combArithOp = true;
+							combArithOpArray[combArithOpCnt] = Code.mul;
+							combArithOpCnt++;
+							RESULT = Code.mul;
+					  :}
+			   		  |
+			   		  DIVEQUAL 
+					  {: 
+							combArithOp = true;
+							combArithOpArray[combArithOpCnt] = Code.div;
+							combArithOpCnt++;
+							RESULT = Code.div;
+					  :}
+			   		  |
+			   		  MODEQUAL 
+					  {: 
+							combArithOp = true;
+							combArithOpArray[combArithOpCnt] = Code.rem;
+							combArithOpCnt++;
+							RESULT = Code.rem;
+					  :}
+			   		  ;
+
+//------------------------------------------
+
+
+
+			   

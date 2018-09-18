@@ -1,0 +1,465 @@
+INFO  16:30:54,602 - Compiling source file: C:\Users\Mirko\Desktop\PP_Projekat\PP_domaci\test\program.mj
+INFO  16:30:54,624 - #42 program
+INFO  16:30:54,624 - #21 test2
+INFO  16:30:54,624 - #8 const
+INFO  16:30:54,626 - #21 int
+INFO  16:30:54,626 - #21 size
+INFO  16:30:54,626 - #16 =
+INFO  16:30:54,626 - #37 10
+INFO  16:30:54,626 - #48 ;
+INFO  16:30:54,627 - Definisana je nova konstanta size na liniji 3
+INFO  16:30:54,627 - #21 int
+INFO  16:30:54,627 - #21 a
+INFO  16:30:54,627 - #48 ;
+INFO  16:30:54,627 - Deklarisana globalna promenljiva a na liniji 4
+INFO  16:30:54,627 - #24 {
+INFO  16:30:54,627 - #21 int
+INFO  16:30:54,627 - #21 g
+INFO  16:30:54,627 - #27 (
+INFO  16:30:54,627 - Definisana metoda g na liniji 8
+INFO  16:30:54,628 - #21 int
+INFO  16:30:54,628 - #21 a
+INFO  16:30:54,628 - #46 )
+INFO  16:30:54,628 - Metoda ima parametar a, naveden u liniji 8
+INFO  16:30:54,628 - #24 {
+INFO  16:30:54,628 - #41 print
+INFO  16:30:54,628 - #27 (
+INFO  16:30:54,628 - #21 a
+INFO  16:30:54,628 - #46 )
+INFO  16:30:54,628 - Koriscenje parametra a na liniji 10
+INFO  16:30:54,629 - #48 ;
+INFO  16:30:54,629 - #44 return
+INFO  16:30:54,629 - #21 a
+INFO  16:30:54,629 - #39 +
+INFO  16:30:54,629 - Koriscenje parametra a na liniji 11
+INFO  16:30:54,629 - #37 1
+INFO  16:30:54,629 - #48 ;
+INFO  16:30:54,629 - #45 }
+INFO  16:30:54,629 - #21 int
+INFO  16:30:54,629 - #21 f
+INFO  16:30:54,632 - #27 (
+INFO  16:30:54,632 - Definisana metoda f na liniji 14
+INFO  16:30:54,633 - #21 int
+INFO  16:30:54,633 - #21 a1
+INFO  16:30:54,633 - #7 ,
+INFO  16:30:54,633 - Metoda ima parametar a1, naveden u liniji 14
+INFO  16:30:54,633 - #21 int
+INFO  16:30:54,633 - #21 a2
+INFO  16:30:54,633 - #7 ,
+INFO  16:30:54,633 - Metoda ima parametar a2, naveden u liniji 14
+INFO  16:30:54,633 - #21 int
+INFO  16:30:54,633 - #21 a3
+INFO  16:30:54,633 - #7 ,
+INFO  16:30:54,633 - Metoda ima parametar a3, naveden u liniji 14
+INFO  16:30:54,633 - #21 int
+INFO  16:30:54,634 - #21 a4
+INFO  16:30:54,634 - #7 ,
+INFO  16:30:54,634 - Metoda ima parametar a4, naveden u liniji 14
+INFO  16:30:54,634 - #21 int
+INFO  16:30:54,634 - #21 a5
+INFO  16:30:54,634 - #7 ,
+INFO  16:30:54,634 - Metoda ima parametar a5, naveden u liniji 14
+INFO  16:30:54,634 - #21 int
+INFO  16:30:54,634 - #21 a6
+INFO  16:30:54,634 - #7 ,
+INFO  16:30:54,634 - Metoda ima parametar a6, naveden u liniji 14
+INFO  16:30:54,634 - #21 int
+INFO  16:30:54,634 - #21 a7
+INFO  16:30:54,635 - #7 ,
+INFO  16:30:54,635 - Metoda ima parametar a7, naveden u liniji 14
+INFO  16:30:54,635 - #21 int
+INFO  16:30:54,635 - #21 a8
+INFO  16:30:54,635 - #7 ,
+INFO  16:30:54,635 - Metoda ima parametar a8, naveden u liniji 14
+INFO  16:30:54,637 - #21 int
+INFO  16:30:54,637 - #21 a9
+INFO  16:30:54,637 - #7 ,
+INFO  16:30:54,637 - Metoda ima parametar a9, naveden u liniji 14
+INFO  16:30:54,637 - #21 int
+INFO  16:30:54,637 - #21 a10
+INFO  16:30:54,638 - #7 ,
+INFO  16:30:54,638 - Metoda ima parametar a10, naveden u liniji 14
+INFO  16:30:54,638 - #21 int
+INFO  16:30:54,638 - #21 a11
+INFO  16:30:54,638 - #7 ,
+INFO  16:30:54,639 - Metoda ima parametar a11, naveden u liniji 14
+INFO  16:30:54,639 - #21 int
+INFO  16:30:54,639 - #21 a12
+INFO  16:30:54,639 - #7 ,
+INFO  16:30:54,639 - Metoda ima parametar a12, naveden u liniji 14
+INFO  16:30:54,639 - #21 int
+INFO  16:30:54,639 - #21 a13
+INFO  16:30:54,639 - #7 ,
+INFO  16:30:54,639 - Metoda ima parametar a13, naveden u liniji 14
+INFO  16:30:54,639 - #21 int
+INFO  16:30:54,639 - #21 a14
+INFO  16:30:54,640 - #7 ,
+INFO  16:30:54,640 - Metoda ima parametar a14, naveden u liniji 14
+INFO  16:30:54,640 - #21 int
+INFO  16:30:54,640 - #21 a15
+INFO  16:30:54,640 - #7 ,
+INFO  16:30:54,640 - Metoda ima parametar a15, naveden u liniji 14
+INFO  16:30:54,640 - #21 int
+INFO  16:30:54,640 - #21 a16
+INFO  16:30:54,640 - #7 ,
+INFO  16:30:54,640 - Metoda ima parametar a16, naveden u liniji 14
+INFO  16:30:54,640 - #21 int
+INFO  16:30:54,641 - #21 a17
+INFO  16:30:54,641 - #7 ,
+INFO  16:30:54,641 - Metoda ima parametar a17, naveden u liniji 14
+INFO  16:30:54,641 - #21 int
+INFO  16:30:54,641 - #21 a18
+INFO  16:30:54,641 - #7 ,
+INFO  16:30:54,641 - Metoda ima parametar a18, naveden u liniji 14
+INFO  16:30:54,641 - #21 int
+INFO  16:30:54,641 - #21 a19
+INFO  16:30:54,641 - #7 ,
+INFO  16:30:54,641 - Metoda ima parametar a19, naveden u liniji 14
+INFO  16:30:54,641 - #21 int
+INFO  16:30:54,641 - #21 a20
+INFO  16:30:54,641 - #46 )
+INFO  16:30:54,642 - Metoda ima parametar a20, naveden u liniji 14
+INFO  16:30:54,642 - #21 int
+INFO  16:30:54,642 - #21 x
+INFO  16:30:54,642 - #48 ;
+INFO  16:30:54,642 - Deklarisana lokalna promenljiva x na liniji 15
+INFO  16:30:54,642 - #24 {
+INFO  16:30:54,643 - #21 x
+INFO  16:30:54,645 - #16 =
+INFO  16:30:54,645 - Koriscenje lokalne promenljive x na liniji 17
+INFO  16:30:54,645 - #21 a
+INFO  16:30:54,645 - #48 ;
+INFO  16:30:54,645 - Koriscenje globalne promenljive a na liniji 17
+INFO  16:30:54,650 - ZAVRSIO SAM IZRAZ I CNT JE 0!!!
+INFO  16:30:54,651 - #21 g
+INFO  16:30:54,651 - #27 (
+INFO  16:30:54,651 - Poziv globalne funkcije g na liniji 18
+INFO  16:30:54,651 - #21 a1
+INFO  16:30:54,651 - #46 )
+INFO  16:30:54,651 - Koriscenje parametra a1 na liniji 18
+INFO  16:30:54,651 - Pronadjeno koriscenje stvarnog parametra a1 na liniji 18
+INFO  16:30:54,651 - #48 ;
+INFO  16:30:54,652 - #21 g
+INFO  16:30:54,652 - #27 (
+INFO  16:30:54,652 - Poziv globalne funkcije g na liniji 19
+INFO  16:30:54,652 - #21 a2
+INFO  16:30:54,652 - #46 )
+INFO  16:30:54,652 - Koriscenje parametra a2 na liniji 19
+INFO  16:30:54,652 - Pronadjeno koriscenje stvarnog parametra a2 na liniji 19
+INFO  16:30:54,652 - #48 ;
+INFO  16:30:54,652 - #21 g
+INFO  16:30:54,652 - #27 (
+INFO  16:30:54,652 - Poziv globalne funkcije g na liniji 20
+INFO  16:30:54,652 - #21 a3
+INFO  16:30:54,652 - #46 )
+INFO  16:30:54,653 - Koriscenje parametra a3 na liniji 20
+INFO  16:30:54,653 - Pronadjeno koriscenje stvarnog parametra a3 na liniji 20
+INFO  16:30:54,653 - #48 ;
+INFO  16:30:54,653 - #21 g
+INFO  16:30:54,653 - #27 (
+INFO  16:30:54,653 - Poziv globalne funkcije g na liniji 21
+INFO  16:30:54,653 - #21 a4
+INFO  16:30:54,653 - #46 )
+INFO  16:30:54,653 - Koriscenje parametra a4 na liniji 21
+INFO  16:30:54,653 - Pronadjeno koriscenje stvarnog parametra a4 na liniji 21
+INFO  16:30:54,653 - #48 ;
+INFO  16:30:54,653 - #21 g
+INFO  16:30:54,654 - #27 (
+INFO  16:30:54,654 - Poziv globalne funkcije g na liniji 22
+INFO  16:30:54,654 - #21 a5
+INFO  16:30:54,654 - #46 )
+INFO  16:30:54,654 - Koriscenje parametra a5 na liniji 22
+INFO  16:30:54,654 - Pronadjeno koriscenje stvarnog parametra a5 na liniji 22
+INFO  16:30:54,654 - #48 ;
+INFO  16:30:54,654 - #21 g
+INFO  16:30:54,654 - #27 (
+INFO  16:30:54,654 - Poziv globalne funkcije g na liniji 23
+INFO  16:30:54,654 - #21 a6
+INFO  16:30:54,654 - #46 )
+INFO  16:30:54,654 - Koriscenje parametra a6 na liniji 23
+INFO  16:30:54,654 - Pronadjeno koriscenje stvarnog parametra a6 na liniji 23
+INFO  16:30:54,654 - #48 ;
+INFO  16:30:54,655 - #21 g
+INFO  16:30:54,655 - #27 (
+INFO  16:30:54,655 - Poziv globalne funkcije g na liniji 24
+INFO  16:30:54,655 - #21 a7
+INFO  16:30:54,655 - #46 )
+INFO  16:30:54,655 - Koriscenje parametra a7 na liniji 24
+INFO  16:30:54,655 - Pronadjeno koriscenje stvarnog parametra a7 na liniji 24
+INFO  16:30:54,655 - #48 ;
+INFO  16:30:54,655 - #21 g
+INFO  16:30:54,655 - #27 (
+INFO  16:30:54,655 - Poziv globalne funkcije g na liniji 25
+INFO  16:30:54,655 - #21 a8
+INFO  16:30:54,655 - #46 )
+INFO  16:30:54,655 - Koriscenje parametra a8 na liniji 25
+INFO  16:30:54,655 - Pronadjeno koriscenje stvarnog parametra a8 na liniji 25
+INFO  16:30:54,655 - #48 ;
+INFO  16:30:54,656 - #21 g
+INFO  16:30:54,656 - #27 (
+INFO  16:30:54,656 - Poziv globalne funkcije g na liniji 26
+INFO  16:30:54,656 - #21 a9
+INFO  16:30:54,656 - #46 )
+INFO  16:30:54,656 - Koriscenje parametra a9 na liniji 26
+INFO  16:30:54,656 - Pronadjeno koriscenje stvarnog parametra a9 na liniji 26
+INFO  16:30:54,656 - #48 ;
+INFO  16:30:54,656 - #21 g
+INFO  16:30:54,656 - #27 (
+INFO  16:30:54,656 - Poziv globalne funkcije g na liniji 27
+INFO  16:30:54,656 - #21 a10
+INFO  16:30:54,656 - #46 )
+INFO  16:30:54,656 - Koriscenje parametra a10 na liniji 27
+INFO  16:30:54,656 - Pronadjeno koriscenje stvarnog parametra a10 na liniji 27
+INFO  16:30:54,656 - #48 ;
+INFO  16:30:54,656 - #21 g
+INFO  16:30:54,657 - #27 (
+INFO  16:30:54,657 - Poziv globalne funkcije g na liniji 28
+INFO  16:30:54,657 - #21 a11
+INFO  16:30:54,657 - #46 )
+INFO  16:30:54,657 - Koriscenje parametra a11 na liniji 28
+INFO  16:30:54,657 - Pronadjeno koriscenje stvarnog parametra a11 na liniji 28
+INFO  16:30:54,657 - #48 ;
+INFO  16:30:54,657 - #21 g
+INFO  16:30:54,657 - #27 (
+INFO  16:30:54,657 - Poziv globalne funkcije g na liniji 29
+INFO  16:30:54,657 - #21 a12
+INFO  16:30:54,657 - #46 )
+INFO  16:30:54,657 - Koriscenje parametra a12 na liniji 29
+INFO  16:30:54,657 - Pronadjeno koriscenje stvarnog parametra a12 na liniji 29
+INFO  16:30:54,657 - #48 ;
+INFO  16:30:54,657 - #21 g
+INFO  16:30:54,658 - #27 (
+INFO  16:30:54,660 - Poziv globalne funkcije g na liniji 30
+INFO  16:30:54,660 - #21 a13
+INFO  16:30:54,660 - #46 )
+INFO  16:30:54,660 - Koriscenje parametra a13 na liniji 30
+INFO  16:30:54,660 - Pronadjeno koriscenje stvarnog parametra a13 na liniji 30
+INFO  16:30:54,660 - #48 ;
+INFO  16:30:54,660 - #21 g
+INFO  16:30:54,660 - #27 (
+INFO  16:30:54,660 - Poziv globalne funkcije g na liniji 31
+INFO  16:30:54,660 - #21 a14
+INFO  16:30:54,660 - #46 )
+INFO  16:30:54,660 - Koriscenje parametra a14 na liniji 31
+INFO  16:30:54,660 - Pronadjeno koriscenje stvarnog parametra a14 na liniji 31
+INFO  16:30:54,660 - #48 ;
+INFO  16:30:54,661 - #21 g
+INFO  16:30:54,661 - #27 (
+INFO  16:30:54,661 - Poziv globalne funkcije g na liniji 32
+INFO  16:30:54,661 - #21 a15
+INFO  16:30:54,661 - #46 )
+INFO  16:30:54,661 - Koriscenje parametra a15 na liniji 32
+INFO  16:30:54,661 - Pronadjeno koriscenje stvarnog parametra a15 na liniji 32
+INFO  16:30:54,661 - #48 ;
+INFO  16:30:54,661 - #21 g
+INFO  16:30:54,661 - #27 (
+INFO  16:30:54,661 - Poziv globalne funkcije g na liniji 33
+INFO  16:30:54,665 - #21 a16
+INFO  16:30:54,665 - #46 )
+INFO  16:30:54,665 - Koriscenje parametra a16 na liniji 33
+INFO  16:30:54,665 - Pronadjeno koriscenje stvarnog parametra a16 na liniji 33
+INFO  16:30:54,665 - #48 ;
+INFO  16:30:54,665 - #21 g
+INFO  16:30:54,665 - #27 (
+INFO  16:30:54,665 - Poziv globalne funkcije g na liniji 34
+INFO  16:30:54,665 - #21 a17
+INFO  16:30:54,665 - #46 )
+INFO  16:30:54,666 - Koriscenje parametra a17 na liniji 34
+INFO  16:30:54,666 - Pronadjeno koriscenje stvarnog parametra a17 na liniji 34
+INFO  16:30:54,666 - #48 ;
+INFO  16:30:54,666 - #21 g
+INFO  16:30:54,666 - #27 (
+INFO  16:30:54,666 - Poziv globalne funkcije g na liniji 35
+INFO  16:30:54,666 - #21 a18
+INFO  16:30:54,666 - #46 )
+INFO  16:30:54,666 - Koriscenje parametra a18 na liniji 35
+INFO  16:30:54,666 - Pronadjeno koriscenje stvarnog parametra a18 na liniji 35
+INFO  16:30:54,666 - #48 ;
+INFO  16:30:54,666 - #21 g
+INFO  16:30:54,666 - #27 (
+INFO  16:30:54,666 - Poziv globalne funkcije g na liniji 36
+INFO  16:30:54,666 - #21 a19
+INFO  16:30:54,666 - #46 )
+INFO  16:30:54,666 - Koriscenje parametra a19 na liniji 36
+INFO  16:30:54,666 - Pronadjeno koriscenje stvarnog parametra a19 na liniji 36
+INFO  16:30:54,667 - #48 ;
+INFO  16:30:54,667 - #21 g
+INFO  16:30:54,667 - #27 (
+INFO  16:30:54,667 - Poziv globalne funkcije g na liniji 37
+INFO  16:30:54,667 - #21 a20
+INFO  16:30:54,667 - #46 )
+INFO  16:30:54,667 - Koriscenje parametra a20 na liniji 37
+INFO  16:30:54,667 - Pronadjeno koriscenje stvarnog parametra a20 na liniji 37
+INFO  16:30:54,667 - #48 ;
+INFO  16:30:54,667 - #44 return
+INFO  16:30:54,667 - #21 x
+INFO  16:30:54,667 - #48 ;
+INFO  16:30:54,667 - Koriscenje lokalne promenljive x na liniji 38
+INFO  16:30:54,667 - #45 }
+INFO  16:30:54,667 - #50 void
+INFO  16:30:54,667 - #21 main
+INFO  16:30:54,667 - #27 (
+INFO  16:30:54,667 - Definisana metoda main na liniji 41
+INFO  16:30:54,667 - #46 )
+INFO  16:30:54,668 - #21 int
+INFO  16:30:54,668 - #21 m
+INFO  16:30:54,668 - #7 ,
+INFO  16:30:54,668 - Deklarisana lokalna promenljiva m na liniji 42
+INFO  16:30:54,668 - #21 n
+INFO  16:30:54,668 - #48 ;
+INFO  16:30:54,668 - Deklarisana lokalna promenljiva n na liniji 42
+INFO  16:30:54,668 - #24 {
+INFO  16:30:54,668 - #21 a
+INFO  16:30:54,668 - #16 =
+INFO  16:30:54,668 - Koriscenje globalne promenljive a na liniji 44
+INFO  16:30:54,668 - #37 3
+INFO  16:30:54,668 - #48 ;
+INFO  16:30:54,668 - ZAVRSIO SAM IZRAZ I CNT JE 0!!!
+INFO  16:30:54,668 - #21 m
+INFO  16:30:54,668 - #16 =
+INFO  16:30:54,668 - Koriscenje lokalne promenljive m na liniji 45
+INFO  16:30:54,669 - #27 (
+INFO  16:30:54,669 - #37 2
+INFO  16:30:54,669 - #33 *
+INFO  16:30:54,669 - #27 (
+INFO  16:30:54,669 - #21 a
+INFO  16:30:54,669 - #39 +
+INFO  16:30:54,669 - Koriscenje globalne promenljive a na liniji 45
+INFO  16:30:54,669 - #37 1
+INFO  16:30:54,669 - #46 )
+INFO  16:30:54,669 - #33 *
+INFO  16:30:54,669 - #37 2
+INFO  16:30:54,669 - #11 /
+INFO  16:30:54,669 - #37 4
+INFO  16:30:54,669 - #39 +
+INFO  16:30:54,669 - #27 (
+INFO  16:30:54,669 - #21 size
+INFO  16:30:54,669 - #39 +
+INFO  16:30:54,669 - Koriscenje konstante size na liniji 45
+INFO  16:30:54,669 - #37 5
+INFO  16:30:54,670 - #46 )
+INFO  16:30:54,670 - #11 /
+INFO  16:30:54,670 - #37 3
+INFO  16:30:54,670 - #46 )
+INFO  16:30:54,670 - #48 ;
+INFO  16:30:54,670 - ZAVRSIO SAM IZRAZ I CNT JE 0!!!
+INFO  16:30:54,670 - #21 n
+INFO  16:30:54,670 - #16 =
+INFO  16:30:54,670 - Koriscenje lokalne promenljive n na liniji 46
+INFO  16:30:54,670 - #21 f
+INFO  16:30:54,670 - #27 (
+INFO  16:30:54,670 - Poziv globalne funkcije f na liniji 46
+INFO  16:30:54,670 - #46 )
+INFO  16:30:54,670 - #48 ;
+ERROR 16:30:54,670 - Greska na liniji 46 poziv funkcije nema dovoljan broj parametara! Ima ih 0, a treba da ih bude 20!
+INFO  16:30:54,670 - ZAVRSIO SAM IZRAZ I CNT JE 0!!!
+INFO  16:30:54,670 - #45 }
+INFO  16:30:54,670 - #45 }
+INFO  16:30:54,671 - ==================== SINTAKSNA ANALIZA ===================
+INFO  16:30:54,671 - Broj globalnih konstanti = 1
+INFO  16:30:54,671 - Broj globalnih promenljivih = 1
+INFO  16:30:54,678 - Broj lokalnih promenljivih u main = 2
+INFO  16:30:54,678 - ==================== SEMANTICKA ANALIZA ===================
+INFO  16:30:54,678 - Definisana je nova konstanta size na liniji 3
+INFO  16:30:54,678 - Deklarisana globalna promenljiva a na liniji 4
+INFO  16:30:54,679 - Definisana metoda g na liniji 8
+INFO  16:30:54,679 - Metoda ima parametar a, naveden u liniji 8
+INFO  16:30:54,679 - Koriscenje parametra a na liniji 10
+INFO  16:30:54,679 - Koriscenje parametra a na liniji 11
+INFO  16:30:54,679 - Definisana metoda f na liniji 14
+INFO  16:30:54,679 - Metoda ima parametar a1, naveden u liniji 14
+INFO  16:30:54,679 - Metoda ima parametar a2, naveden u liniji 14
+INFO  16:30:54,679 - Metoda ima parametar a3, naveden u liniji 14
+INFO  16:30:54,679 - Metoda ima parametar a4, naveden u liniji 14
+INFO  16:30:54,679 - Metoda ima parametar a5, naveden u liniji 14
+INFO  16:30:54,679 - Metoda ima parametar a6, naveden u liniji 14
+INFO  16:30:54,679 - Metoda ima parametar a7, naveden u liniji 14
+INFO  16:30:54,679 - Metoda ima parametar a8, naveden u liniji 14
+INFO  16:30:54,679 - Metoda ima parametar a9, naveden u liniji 14
+INFO  16:30:54,679 - Metoda ima parametar a10, naveden u liniji 14
+INFO  16:30:54,679 - Metoda ima parametar a11, naveden u liniji 14
+INFO  16:30:54,679 - Metoda ima parametar a12, naveden u liniji 14
+INFO  16:30:54,679 - Metoda ima parametar a13, naveden u liniji 14
+INFO  16:30:54,679 - Metoda ima parametar a14, naveden u liniji 14
+INFO  16:30:54,679 - Metoda ima parametar a15, naveden u liniji 14
+INFO  16:30:54,679 - Metoda ima parametar a16, naveden u liniji 14
+INFO  16:30:54,679 - Metoda ima parametar a17, naveden u liniji 14
+INFO  16:30:54,679 - Metoda ima parametar a18, naveden u liniji 14
+INFO  16:30:54,679 - Metoda ima parametar a19, naveden u liniji 14
+INFO  16:30:54,679 - Metoda ima parametar a20, naveden u liniji 14
+INFO  16:30:54,679 - Deklarisana lokalna promenljiva x na liniji 15
+INFO  16:30:54,680 - Koriscenje lokalne promenljive x na liniji 17
+INFO  16:30:54,680 - Koriscenje globalne promenljive a na liniji 17
+INFO  16:30:54,680 - Poziv globalne funkcije g na liniji 18
+INFO  16:30:54,680 - Koriscenje parametra a1 na liniji 18
+INFO  16:30:54,680 - Pronadjeno koriscenje stvarnog parametra a1 na liniji 18
+INFO  16:30:54,680 - Poziv globalne funkcije g na liniji 19
+INFO  16:30:54,680 - Koriscenje parametra a2 na liniji 19
+INFO  16:30:54,680 - Pronadjeno koriscenje stvarnog parametra a2 na liniji 19
+INFO  16:30:54,680 - Poziv globalne funkcije g na liniji 20
+INFO  16:30:54,680 - Koriscenje parametra a3 na liniji 20
+INFO  16:30:54,680 - Pronadjeno koriscenje stvarnog parametra a3 na liniji 20
+INFO  16:30:54,680 - Poziv globalne funkcije g na liniji 21
+INFO  16:30:54,680 - Koriscenje parametra a4 na liniji 21
+INFO  16:30:54,680 - Pronadjeno koriscenje stvarnog parametra a4 na liniji 21
+INFO  16:30:54,680 - Poziv globalne funkcije g na liniji 22
+INFO  16:30:54,680 - Koriscenje parametra a5 na liniji 22
+INFO  16:30:54,680 - Pronadjeno koriscenje stvarnog parametra a5 na liniji 22
+INFO  16:30:54,680 - Poziv globalne funkcije g na liniji 23
+INFO  16:30:54,680 - Koriscenje parametra a6 na liniji 23
+INFO  16:30:54,680 - Pronadjeno koriscenje stvarnog parametra a6 na liniji 23
+INFO  16:30:54,680 - Poziv globalne funkcije g na liniji 24
+INFO  16:30:54,680 - Koriscenje parametra a7 na liniji 24
+INFO  16:30:54,680 - Pronadjeno koriscenje stvarnog parametra a7 na liniji 24
+INFO  16:30:54,681 - Poziv globalne funkcije g na liniji 25
+INFO  16:30:54,681 - Koriscenje parametra a8 na liniji 25
+INFO  16:30:54,681 - Pronadjeno koriscenje stvarnog parametra a8 na liniji 25
+INFO  16:30:54,681 - Poziv globalne funkcije g na liniji 26
+INFO  16:30:54,681 - Koriscenje parametra a9 na liniji 26
+INFO  16:30:54,681 - Pronadjeno koriscenje stvarnog parametra a9 na liniji 26
+INFO  16:30:54,681 - Poziv globalne funkcije g na liniji 27
+INFO  16:30:54,681 - Koriscenje parametra a10 na liniji 27
+INFO  16:30:54,681 - Pronadjeno koriscenje stvarnog parametra a10 na liniji 27
+INFO  16:30:54,681 - Poziv globalne funkcije g na liniji 28
+INFO  16:30:54,681 - Koriscenje parametra a11 na liniji 28
+INFO  16:30:54,681 - Pronadjeno koriscenje stvarnog parametra a11 na liniji 28
+INFO  16:30:54,681 - Poziv globalne funkcije g na liniji 29
+INFO  16:30:54,681 - Koriscenje parametra a12 na liniji 29
+INFO  16:30:54,681 - Pronadjeno koriscenje stvarnog parametra a12 na liniji 29
+INFO  16:30:54,681 - Poziv globalne funkcije g na liniji 30
+INFO  16:30:54,681 - Koriscenje parametra a13 na liniji 30
+INFO  16:30:54,681 - Pronadjeno koriscenje stvarnog parametra a13 na liniji 30
+INFO  16:30:54,681 - Poziv globalne funkcije g na liniji 31
+INFO  16:30:54,681 - Koriscenje parametra a14 na liniji 31
+INFO  16:30:54,681 - Pronadjeno koriscenje stvarnog parametra a14 na liniji 31
+INFO  16:30:54,682 - Poziv globalne funkcije g na liniji 32
+INFO  16:30:54,682 - Koriscenje parametra a15 na liniji 32
+INFO  16:30:54,682 - Pronadjeno koriscenje stvarnog parametra a15 na liniji 32
+INFO  16:30:54,682 - Poziv globalne funkcije g na liniji 33
+INFO  16:30:54,682 - Koriscenje parametra a16 na liniji 33
+INFO  16:30:54,682 - Pronadjeno koriscenje stvarnog parametra a16 na liniji 33
+INFO  16:30:54,682 - Poziv globalne funkcije g na liniji 34
+INFO  16:30:54,682 - Koriscenje parametra a17 na liniji 34
+INFO  16:30:54,682 - Pronadjeno koriscenje stvarnog parametra a17 na liniji 34
+INFO  16:30:54,682 - Poziv globalne funkcije g na liniji 35
+INFO  16:30:54,682 - Koriscenje parametra a18 na liniji 35
+INFO  16:30:54,682 - Pronadjeno koriscenje stvarnog parametra a18 na liniji 35
+INFO  16:30:54,682 - Poziv globalne funkcije g na liniji 36
+INFO  16:30:54,682 - Koriscenje parametra a19 na liniji 36
+INFO  16:30:54,682 - Pronadjeno koriscenje stvarnog parametra a19 na liniji 36
+INFO  16:30:54,682 - Poziv globalne funkcije g na liniji 37
+INFO  16:30:54,682 - Koriscenje parametra a20 na liniji 37
+INFO  16:30:54,682 - Pronadjeno koriscenje stvarnog parametra a20 na liniji 37
+INFO  16:30:54,682 - Koriscenje lokalne promenljive x na liniji 38
+INFO  16:30:54,682 - Definisana metoda main na liniji 41
+INFO  16:30:54,682 - Deklarisana lokalna promenljiva m na liniji 42
+INFO  16:30:54,682 - Deklarisana lokalna promenljiva n na liniji 42
+INFO  16:30:54,682 - Koriscenje globalne promenljive a na liniji 44
+INFO  16:30:54,682 - Koriscenje lokalne promenljive m na liniji 45
+INFO  16:30:54,682 - Koriscenje globalne promenljive a na liniji 45
+INFO  16:30:54,682 - Koriscenje konstante size na liniji 45
+INFO  16:30:54,682 - Koriscenje lokalne promenljive n na liniji 46
+INFO  16:30:54,682 - Poziv globalne funkcije f na liniji 46
+INFO  16:30:54,682 - Greska na liniji 46 poziv funkcije nema dovoljan broj parametara! Ima ih 0, a treba da ih bude 20!
+INFO  16:30:54,683 - ===========================================================
+ERROR 16:30:54,684 - Parsiranje NIJE uspesno zavrseno!
